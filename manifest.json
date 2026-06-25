@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Search & Run Test",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Select a test name on Jira/Confluence, find it across configured GitHub repos, and dispatch the matching GitHub Actions workflow.",
   "permissions": [
     "storage",
@@ -33,7 +33,9 @@
       "matches": [
         "*://*.atlassian.net/*"
       ],
-      "js": ["content.js"]
+      "js": [
+        "content.js"
+      ]
     }
   ],
   "options_page": "ui/options.html",
