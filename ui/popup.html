@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Search &amp; Run Test</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="popup">
+  <header class="bar">
+    <div class="bar-title">
+      <img src="../icons/icon48.png" alt="" class="bar-logo" />
+      <h1>Search &amp; Run Test</h1>
+    </div>
+    <button id="connStatus" class="pill pill-muted" title="GitHub connection">…</button>
+  </header>
+
+  <!-- Step indicator -->
+  <nav id="steps" class="steps" aria-label="Progress">
+    <span class="step" data-step="search">1 · Search</span>
+    <span class="step" data-step="results">2 · Select</span>
+    <span class="step" data-step="params">3 · Configure</span>
+    <span class="step" data-step="output">4 · Run</span>
+  </nav>
+
+  <main class="content">
+    <!-- Not connected notice -->
+    <section id="notConnected" class="hidden card warn">
+      <p><strong>Not connected to GitHub.</strong></p>
+      <p class="muted">Connect once in Options to start searching and running tests.</p>
+      <button id="openOptionsBtn" class="btn btn-primary btn-block">Open Options to Connect</button>
+    </section>
+
+    <!-- Search -->
+    <section id="searchSection" class="card">
+      <label for="testName">Test name</label>
+      <input id="testName" type="text" placeholder="test_example_name[param]" autocomplete="off" spellcheck="false" />
+      <div id="testNameError" class="field-error hidden"></div>
+      <button id="searchBtn" class="btn btn-primary btn-block">
+        <span class="btn-label">Search</span>
+        <span class="btn-spinner hidden" aria-hidden="true"></span>
+      </button>
+      <p class="hint muted">Tip: select a test name on a page, right-click → “Search &amp; Run Test”.</p>
+    </section>
+
+    <!-- Results -->
+    <section id="resultsSection" class="hidden card">
+      <div class="section-head">
+        <h2>Select a test</h2>
+        <span id="resultsCount" class="badge"></span>
+      </div>
+      <input id="resultsFilter" type="text" class="filter-input hidden" placeholder="Filter results…" autocomplete="off" />
+      <div id="resultsList" class="results"></div>
+      <button id="newSearchBtn" class="btn btn-ghost btn-block">← New search</button>
+    </section>
+
+    <!-- Parameters -->
+    <section id="paramsSection" class="hidden card">
+      <h2>Run parameters</h2>
+      <div id="selectedHit" class="selected-hit"></div>
+
+      <div id="setupNotice" class="card warn hidden">
+        <p><strong>This repository isn't set up yet.</strong></p>
+        <p class="muted">No workflow inputs are configured for it. Open Options and define the inputs its workflow expects.</p>
+        <button id="setupOptionsBtn" class="btn btn-primary btn-block">Open Options</button>
+      </div>
+
+      <label for="runBranch">Branch (git ref)</label>
+      <input id="runBranch" type="text" value="main" autocomplete="off" spellcheck="false" />
+      <div id="runBranchError" class="field-error hidden"></div>
+
+      <div id="inputsForm" class="inputs-form"></div>
+
+      <div class="actions">
+        <button id="backBtn" class="btn btn-ghost">← Back</button>
+        <button id="runBtn" class="btn btn-primary">
+          <span class="btn-label">Run Test</span>
+          <span class="btn-spinner hidden" aria-hidden="true"></span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Result / status output -->
+    <section id="outputSection" class="hidden card">
+      <div id="outputBody"></div>
+      <button id="runAnotherBtn" class="btn btn-ghost btn-block">Run another test</button>
+    </section>
+
+    <div id="message" class="message hidden" role="alert"></div>
+  </main>
+
+  <script type="module" src="popup.js"></script>
+</body>
+</html>

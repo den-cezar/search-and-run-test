@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Search &amp; Run Test — Options</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="options">
+  <div class="page">
+    <h1>Search &amp; Run Test — Options</h1>
+
+    <!-- GitHub connection -->
+    <section class="card">
+      <h2>GitHub connection</h2>
+      <p class="muted">Connect with GitHub OAuth Device Flow. No token to paste.</p>
+
+      <label for="clientId">OAuth App client ID</label>
+      <input id="clientId" type="text" placeholder="Iv1.xxxxxxxxxxxx" autocomplete="off" />
+
+      <div class="actions">
+        <button id="connectBtn" class="btn btn-primary">Connect GitHub</button>
+        <button id="checkBtn" class="btn">Check connection</button>
+        <button id="disconnectBtn" class="btn btn-danger">Disconnect</button>
+      </div>
+
+      <div id="deviceBox" class="hidden device-box">
+        <p>Open <a id="verifyLink" href="#" target="_blank" rel="noopener">the GitHub activation page</a> and enter this code:</p>
+        <div id="userCode" class="user-code"></div>
+        <p id="deviceStatus" class="muted"></p>
+      </div>
+
+      <div id="connStatus" class="status"></div>
+    </section>
+
+    <!-- Repositories -->
+    <section class="card">
+      <h2>Repositories</h2>
+      <p class="muted">Each repo: owner, repo, workflow file, the path base to strip when building the pytest node ID, and the list of <code>workflow_dispatch</code> inputs its workflow accepts.</p>
+
+      <details class="help">
+        <summary>How to set up a repository</summary>
+        <ul class="help-list">
+          <li><strong>Name</strong> — any label shown in the popup (e.g. <code>my-tests</code>).</li>
+          <li><strong>Owner / Repo</strong> — the GitHub <code>owner/repo</code> (e.g. <code>your-org/your-test-repo</code>).</li>
+          <li><strong>Workflow file</strong> — the <code>.yml</code> file under <code>.github/workflows/</code> that accepts the dispatch inputs.</li>
+          <li><strong>Branch</strong> — git ref the workflow is dispatched on (e.g. <code>main</code>).</li>
+          <li><strong>Path base to strip</strong> — folder prefix removed from a search hit to build the node ID (<code>relative/path.py::test_name</code>).</li>
+          <li><strong>Workflow inputs</strong> — add one row per input your workflow's <code>workflow_dispatch</code> declares. For each: the <strong>Input key</strong> (exact input name), a <strong>Label</strong>, a <strong>Type</strong> (<code>select</code>, <code>text</code>, <code>number</code>, <code>checkbox</code>), <strong>Options</strong> for <code>select</code> (comma-separated, must match the workflow's allowed choices or dispatch fails with <code>422</code>), and a <strong>Default</strong>.</li>
+          <li><strong>Test path</strong> — mark exactly one input as the test-path target; it is auto-filled with the selected test's node ID (<code>relative/path.py::test_name</code>) and shown read-only in the popup.</li>
+        </ul>
+      </details>
+
+      <div id="reposList"></div>
+      <div class="actions">
+        <button id="addRepoBtn" class="btn">Add repository</button>
+        <button id="exportReposBtn" class="btn">Export</button>
+        <button id="importReposBtn" class="btn">Import</button>
+        <button id="saveReposBtn" class="btn btn-primary" disabled>Save repositories</button>
+      </div>
+      <input id="importReposFile" type="file" accept="application/json,.json" class="hidden" />
+    </section>
+
+    <!-- Advanced -->
+    <section class="card">
+      <h2>Advanced</h2>
+      <label for="logLevel">Log level (DevTools console)</label>
+      <select id="logLevel">
+        <option value="debug">debug — verbose</option>
+        <option value="info">info — default</option>
+        <option value="warn">warn</option>
+        <option value="error">error only</option>
+        <option value="silent">silent</option>
+      </select>
+      <div class="actions">
+        <button id="saveLogLevelBtn" class="btn btn-primary" disabled>Save log level</button>
+      </div>
+    </section>
+
+    <div id="message" class="message hidden"></div>
+  </div>
+
+  <script type="module" src="options.js"></script>
+</body>
+</html>

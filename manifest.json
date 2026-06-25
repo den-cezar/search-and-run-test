@@ -1,0 +1,45 @@
+{
+  "manifest_version": 3,
+  "name": "Search & Run Test",
+  "version": "0.1.0",
+  "description": "Select a test name on Jira/Confluence, find it across configured GitHub repos, and dispatch the matching GitHub Actions workflow.",
+  "permissions": [
+    "storage",
+    "contextMenus",
+    "activeTab",
+    "scripting",
+    "identity"
+  ],
+  "host_permissions": [
+    "https://api.github.com/*",
+    "https://github.com/login/*",
+    "*://*.atlassian.net/*"
+  ],
+  "action": {
+    "default_title": "Search & Run Test",
+    "default_popup": "ui/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.atlassian.net/*"
+      ],
+      "js": ["content.js"]
+    }
+  ],
+  "options_page": "ui/options.html",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}
