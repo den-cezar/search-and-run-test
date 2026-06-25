@@ -115,7 +115,7 @@ class GitHubClient {
       return new GitHubError("Not found (404).", { status: 404, kind: "not-found" });
     }
 
-    let detail = "";
+    let detail;
     try {
       const data = await res.json();
       detail = data.message || "";
