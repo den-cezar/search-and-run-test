@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/den-cezar/search-and-run-test/compare/v0.1.1...v0.1.2) (2026-09-09)
+
+
+### Bug Fixes
+
+* ship an empty OAuth client ID instead of a placeholder string ([#12](https://github.com/den-cezar/search-and-run-test/issues/12)) ([19e9f17](https://github.com/den-cezar/search-and-run-test/commit/19e9f174a65927ac1aab9263d3b0b15ac90d32e3))
+
 ## [0.1.1](https://github.com/den-cezar/search-and-run-test/compare/v0.1.0...v0.1.1) (2026-06-25)
 
 
