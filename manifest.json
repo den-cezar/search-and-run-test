@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Search & Run Test",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Select a test name on Jira/Confluence, find it across configured GitHub repos, and dispatch the matching GitHub Actions workflow.",
   "permissions": [
     "storage",
