@@ -7,7 +7,8 @@
  * (it can also be overridden from the Options page).
  */
 
-export const OAUTH_CLIENT_ID = "REPLACE_WITH_OAUTH_APP_CLIENT_ID";
+/** Empty by design: each user registers their own OAuth App and sets it in Options. */
+export const OAUTH_CLIENT_ID = "";
 
 export const OAUTH_SCOPES = "repo workflow";
 
