@@ -1,0 +1,184 @@
+name: Publish to extension stores
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        description: Release tag whose zip asset should be published.
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag whose zip asset should be published (for example v0.1.1).
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  chrome:
+    name: Chrome Web Store
+    runs-on: ubuntu-latest
+    environment: chrome-web-store
+    steps:
+      - name: Download release package
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ inputs.tag }}
+        run: gh release download "$TAG" --pattern '*.zip' --dir dist
+
+      - name: Request an access token
+        env:
+          CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
+          REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
+        run: |
+          set -euo pipefail
+          token=$(curl -sS --fail-with-body -X POST https://oauth2.googleapis.com/token \
+            -d "client_id=${CLIENT_ID}" \
+            -d "client_secret=${CLIENT_SECRET}" \
+            -d "refresh_token=${REFRESH_TOKEN}" \
+            -d "grant_type=refresh_token" | jq -r '.access_token')
+          if [ -z "$token" ] || [ "$token" = "null" ]; then
+            echo "Failed to obtain a Chrome Web Store access token." >&2
+            exit 1
+          fi
+          echo "::add-mask::$token"
+          echo "CWS_TOKEN=$token" >> "$GITHUB_ENV"
+
+      - name: Upload package
+        env:
+          PUBLISHER_ID: ${{ secrets.CHROME_PUBLISHER_ID }}
+          ITEM_ID: ${{ secrets.CHROME_ITEM_ID }}
+        run: |
+          set -euo pipefail
+          zip=$(find dist -name '*.zip' | head -n 1)
+          response=$(curl -sS --fail-with-body \
+            -H "Authorization: Bearer ${CWS_TOKEN}" \
+            -H "Content-Type: application/zip" \
+            -X POST -T "$zip" \
+            "https://chromewebstore.googleapis.com/upload/v2/publishers/${PUBLISHER_ID}/items/${ITEM_ID}:upload")
+          echo "$response"
+          state=$(echo "$response" | jq -r '.uploadState // empty')
+          if [ "$state" = "FAILURE" ]; then
+            echo "Chrome Web Store rejected the package." >&2
+            exit 1
+          fi
+
+      - name: Submit for review
+        env:
+          PUBLISHER_ID: ${{ secrets.CHROME_PUBLISHER_ID }}
+          ITEM_ID: ${{ secrets.CHROME_ITEM_ID }}
+        run: |
+          set -euo pipefail
+          curl -sS --fail-with-body \
+            -H "Authorization: Bearer ${CWS_TOKEN}" \
+            -H "Content-Length: 0" \
+            -X POST \
+            "https://chromewebstore.googleapis.com/v2/publishers/${PUBLISHER_ID}/items/${ITEM_ID}:publish"
+
+  edge:
+    name: Microsoft Edge Add-ons
+    runs-on: ubuntu-latest
+    environment: edge-add-ons
+    env:
+      EDGE_API: https://api.addons.microsoftedge.microsoft.com
+    steps:
+      - name: Download release package
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ inputs.tag }}
+        run: gh release download "$TAG" --pattern '*.zip' --dir dist
+
+      - name: Upload package to the draft submission
+        env:
+          API_KEY: ${{ secrets.EDGE_API_KEY }}
+          CLIENT_ID: ${{ secrets.EDGE_CLIENT_ID }}
+          PRODUCT_ID: ${{ secrets.EDGE_PRODUCT_ID }}
+        run: |
+          set -euo pipefail
+          zip=$(find dist -name '*.zip' | head -n 1)
+          headers=$(curl -sS --fail-with-body -D - -o /dev/null \
+            -H "Authorization: ApiKey ${API_KEY}" \
+            -H "X-ClientID: ${CLIENT_ID}" \
+            -H "Content-Type: application/zip" \
+            -X POST -T "$zip" \
+            "${EDGE_API}/v1/products/${PRODUCT_ID}/submissions/draft/package")
+          operation=$(echo "$headers" | tr -d '\r' | awk 'tolower($1) == "location:" { print $2 }')
+          if [ -z "$operation" ]; then
+            echo "Edge Add-ons API did not return an upload operation id." >&2
+            exit 1
+          fi
+          echo "UPLOAD_OPERATION=$operation" >> "$GITHUB_ENV"
+
+      - name: Wait for the upload to be processed
+        env:
+          API_KEY: ${{ secrets.EDGE_API_KEY }}
+          CLIENT_ID: ${{ secrets.EDGE_CLIENT_ID }}
+          PRODUCT_ID: ${{ secrets.EDGE_PRODUCT_ID }}
+        run: |
+          set -euo pipefail
+          for _ in $(seq 1 60); do
+            body=$(curl -sS --fail-with-body \
+              -H "Authorization: ApiKey ${API_KEY}" \
+              -H "X-ClientID: ${CLIENT_ID}" \
+              "${EDGE_API}/v1/products/${PRODUCT_ID}/submissions/draft/package/operations/${UPLOAD_OPERATION}")
+            status=$(echo "$body" | jq -r '.status')
+            echo "Upload status: $status"
+            case "$status" in
+              Succeeded) exit 0 ;;
+              Failed) echo "$body" >&2; exit 1 ;;
+            esac
+            sleep 10
+          done
+          echo "Timed out waiting for the Edge package upload." >&2
+          exit 1
+
+      - name: Publish the submission
+        env:
+          API_KEY: ${{ secrets.EDGE_API_KEY }}
+          CLIENT_ID: ${{ secrets.EDGE_CLIENT_ID }}
+          PRODUCT_ID: ${{ secrets.EDGE_PRODUCT_ID }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          headers=$(curl -sS --fail-with-body -D - -o /dev/null \
+            -H "Authorization: ApiKey ${API_KEY}" \
+            -H "X-ClientID: ${CLIENT_ID}" \
+            -H "Content-Type: application/json" \
+            -X POST \
+            -d "$(jq -nc --arg notes "Automated release ${TAG}" '{notes: $notes}')" \
+            "${EDGE_API}/v1/products/${PRODUCT_ID}/submissions")
+          operation=$(echo "$headers" | tr -d '\r' | awk 'tolower($1) == "location:" { print $2 }')
+          if [ -z "$operation" ]; then
+            echo "Edge Add-ons API did not return a publish operation id." >&2
+            exit 1
+          fi
+          echo "PUBLISH_OPERATION=$operation" >> "$GITHUB_ENV"
+
+      - name: Wait for the submission to be accepted
+        env:
+          API_KEY: ${{ secrets.EDGE_API_KEY }}
+          CLIENT_ID: ${{ secrets.EDGE_CLIENT_ID }}
+          PRODUCT_ID: ${{ secrets.EDGE_PRODUCT_ID }}
+        run: |
+          set -euo pipefail
+          for _ in $(seq 1 60); do
+            body=$(curl -sS --fail-with-body \
+              -H "Authorization: ApiKey ${API_KEY}" \
+              -H "X-ClientID: ${CLIENT_ID}" \
+              "${EDGE_API}/v1/products/${PRODUCT_ID}/submissions/operations/${PUBLISH_OPERATION}")
+            status=$(echo "$body" | jq -r '.status')
+            echo "Publish status: $status"
+            case "$status" in
+              Succeeded) exit 0 ;;
+              Failed) echo "$body" >&2; exit 1 ;;
+            esac
+            sleep 10
+          done
+          echo "Timed out waiting for the Edge submission." >&2
+          exit 1
