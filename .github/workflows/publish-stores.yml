@@ -32,16 +32,31 @@ jobs:
 
       - name: Request an access token
         env:
-          CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
-          CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
-          REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
+          SA_KEY: ${{ secrets.CHROME_SERVICE_ACCOUNT_KEY }}
         run: |
           set -euo pipefail
+          b64url() { openssl base64 -A | tr '+/' '-_' | tr -d '='; }
+
+          client_email=$(jq -r '.client_email' <<< "$SA_KEY")
+          private_key=$(jq -r '.private_key' <<< "$SA_KEY")
+          iat=$(date +%s)
+
+          header=$(printf '{"alg":"RS256","typ":"JWT"}' | b64url)
+          claim=$(jq -nc \
+            --arg iss "$client_email" \
+            --arg scope "https://www.googleapis.com/auth/chromewebstore" \
+            --argjson iat "$iat" \
+            --argjson exp "$((iat + 3600))" \
+            '{iss: $iss, scope: $scope, aud: "https://oauth2.googleapis.com/token", iat: $iat, exp: $exp}' \
+            | b64url)
+          signature=$(printf '%s.%s' "$header" "$claim" \
+            | openssl dgst -sha256 -sign <(printf '%s' "$private_key") \
+            | b64url)
+
           token=$(curl -sS --fail-with-body -X POST https://oauth2.googleapis.com/token \
-            -d "client_id=${CLIENT_ID}" \
-            -d "client_secret=${CLIENT_SECRET}" \
-            -d "refresh_token=${REFRESH_TOKEN}" \
-            -d "grant_type=refresh_token" | jq -r '.access_token')
+            --data-urlencode "grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer" \
+            --data-urlencode "assertion=${header}.${claim}.${signature}" \
+            | jq -r '.access_token')
           if [ -z "$token" ] || [ "$token" = "null" ]; then
             echo "Failed to obtain a Chrome Web Store access token." >&2
             exit 1
