@@ -6,7 +6,6 @@
 [![Tests](https://img.shields.io/badge/tests-46%20passing-brightgreen)](#tests)
 [![Core coverage](https://img.shields.io/badge/core%20coverage-~99%25-brightgreen)](#test-coverage)
 [![Chrome Web Store](https://img.shields.io/chrome-web-store/v/mphnpjnmjdmoabgcabfgpbmieamgihof?logo=googlechrome&logoColor=white&label=Chrome%20Web%20Store)](https://chromewebstore.google.com/detail/search-run-test/mphnpjnmjdmoabgcabfgpbmieamgihof)
-[![Chrome Web Store users](https://img.shields.io/chrome-web-store/users/mphnpjnmjdmoabgcabfgpbmieamgihof?label=users)](https://chromewebstore.google.com/detail/search-run-test/mphnpjnmjdmoabgcabfgpbmieamgihof)
 [![Edge Add-ons](https://img.shields.io/badge/Edge%20Add--ons-in%20review-0078d7?logo=microsoftedge&logoColor=white)](#3-install-the-extension)
 [![Manifest V3](https://img.shields.io/badge/Manifest-V3-5a5a5a)](manifest.json)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
