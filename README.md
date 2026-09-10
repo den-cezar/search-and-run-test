@@ -5,14 +5,17 @@
 [![Latest release](https://img.shields.io/github/v/release/den-cezar/search-and-run-test?sort=semver)](https://github.com/den-cezar/search-and-run-test/releases/latest)
 [![Tests](https://img.shields.io/badge/tests-46%20passing-brightgreen)](#tests)
 [![Core coverage](https://img.shields.io/badge/core%20coverage-~99%25-brightgreen)](#test-coverage)
-[![Chrome](https://img.shields.io/badge/Chrome-supported-1a73e8?logo=googlechrome&logoColor=white)](#3-install-the-extension-unpacked)
-[![Edge](https://img.shields.io/badge/Edge-supported-0078d7?logo=microsoftedge&logoColor=white)](#3-install-the-extension-unpacked)
+[![Chrome Web Store](https://img.shields.io/chrome-web-store/v/mphnpjnmjdmoabgcabfgpbmieamgihof?logo=googlechrome&logoColor=white&label=Chrome%20Web%20Store)](https://chromewebstore.google.com/detail/search-run-test/mphnpjnmjdmoabgcabfgpbmieamgihof)
+[![Chrome Web Store users](https://img.shields.io/chrome-web-store/users/mphnpjnmjdmoabgcabfgpbmieamgihof?label=users)](https://chromewebstore.google.com/detail/search-run-test/mphnpjnmjdmoabgcabfgpbmieamgihof)
+[![Edge Add-ons](https://img.shields.io/badge/Edge%20Add--ons-in%20review-0078d7?logo=microsoftedge&logoColor=white)](#3-install-the-extension)
 [![Manifest V3](https://img.shields.io/badge/Manifest-V3-5a5a5a)](manifest.json)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Select a test name on a Jira/Confluence page, find it across configured GitHub
 repos, and dispatch the matching GitHub Actions workflow — without leaving the
 browser. Manifest V3, works in Chrome and Edge.
+
+**[Install from the Chrome Web Store](https://chromewebstore.google.com/detail/search-run-test/mphnpjnmjdmoabgcabfgpbmieamgihof)**
 
 ## How it works
 
@@ -56,18 +59,27 @@ Either option works (the Options page value overrides the config default):
 - **Options page** (recommended): paste it into **OAuth App client ID**, or
 - **In code**: set `OAUTH_CLIENT_ID` in [`config/config.js`](config/config.js).
 
-### 3. Install the extension (unpacked)
+### 3. Install the extension
 
-You can install from a packaged release or straight from the source folder.
+**Chrome — from the store (recommended)**
 
-**Option A — download a release (recommended for users)**
+Install from the
+[Chrome Web Store](https://chromewebstore.google.com/detail/search-run-test/mphnpjnmjdmoabgcabfgpbmieamgihof).
+Updates arrive automatically.
+
+**Microsoft Edge**
+
+Under review at the Microsoft Edge Add-ons store. Until it is published, use the
+unpacked install below — Edge loads Manifest V3 extensions the same way Chrome does.
+
+**Unpacked — from a release**
 
 1. Open the [latest release](https://github.com/den-cezar/search-and-run-test/releases/latest)
    and download `search-and-run-test-vX.Y.Z.zip`.
 2. Unzip it somewhere permanent (the browser loads the extension from this folder).
-3. Continue with steps 1–5 below, selecting the unzipped folder.
+3. Continue with the steps below, selecting the unzipped folder.
 
-**Option B — load from source (for development)**
+**Unpacked — from source (for development)**
 
 1. Open `chrome://extensions` (or `edge://extensions`).
 2. Enable **Developer mode**.
