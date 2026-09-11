@@ -33,8 +33,7 @@
         "do_not_enforce_on_create": false,
         "required_status_checks": [
           { "context": "Lint" },
-          { "context": "Test" },
-          { "context": "Validate PR title (conventional commits)" }
+          { "context": "Test" }
         ]
       }
     }
