@@ -7,6 +7,7 @@ import { storage } from "../api/storage-service.js";
 import { validateTestName, validateBranch } from "../lib/validation.js";
 import { buildDispatchInputs, defaultValueFor } from "../lib/inputs.js";
 import { createLogger, initLogLevelFromStorage } from "../lib/logger.js";
+import { esc } from "../lib/html.js";
 
 const log = createLogger("popup");
 const el = (id) => document.getElementById(id);
@@ -385,12 +386,4 @@ function showMessage(text, type) {
 
 function clearMessage() {
   el("message").classList.add("hidden");
-}
-
-function esc(s) {
-  return String(s == null ? "" : s)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
 }

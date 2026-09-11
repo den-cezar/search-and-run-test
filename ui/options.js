@@ -14,6 +14,7 @@ import {
   parseOptions
 } from "../lib/inputs.js";
 import { createLogger, initLogLevelFromStorage, setLogLevel } from "../lib/logger.js";
+import { esc } from "../lib/html.js";
 
 const log = createLogger("options");
 const el = (id) => document.getElementById(id);
@@ -80,7 +81,8 @@ async function saveLogLevel() {
 }
 
 async function loadRepos() {
-  repos = await storage.getRepos();
+  // Normalize on read: stored configs may predate the current shape.
+  repos = (await storage.getRepos()).map(normalizeRepo);
   renderRepos();
 }
 
@@ -421,10 +423,6 @@ async function refreshConnStatus() {
 }
 
 // --- helpers ---
-function esc(s) {
-  return String(s || "").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-}
-
 function showMessage(text, type) {
   const m = el("message");
   m.textContent = text;
