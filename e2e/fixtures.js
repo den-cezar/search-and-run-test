@@ -1,7 +1,7 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { test as base, chromium } from "@playwright/test";
+import { test as base, chromium, expect } from "@playwright/test";
 
 const EXTENSION_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -58,6 +58,39 @@ export const test = base.extend({
 });
 
 export { expect } from "@playwright/test";
+
+export const popupUrl = (extensionId, query = "") =>
+  `chrome-extension://${extensionId}/ui/popup.html${query}`;
+
+export const optionsUrl = (extensionId) =>
+  `chrome-extension://${extensionId}/ui/options.html`;
+
+/**
+ * Both pages attach their listeners partway through an async init(), so a click
+ * sent before that lands on nothing. Each page writes its connection status
+ * last, which makes it a reliable readiness signal.
+ */
+export async function waitForPopupReady(page) {
+  await expect(page.locator("#connStatus")).not.toHaveText("…");
+}
+
+export async function waitForOptionsReady(page) {
+  await expect(page.locator("#connStatus")).not.toBeEmpty();
+}
+
+export async function openPopup(context, extensionId, query = "") {
+  const page = await context.newPage();
+  await page.goto(popupUrl(extensionId, query));
+  await waitForPopupReady(page);
+  return page;
+}
+
+export async function openOptions(context, extensionId) {
+  const page = await context.newPage();
+  await page.goto(optionsUrl(extensionId));
+  await waitForOptionsReady(page);
+  return page;
+}
 
 /** The extension's MV3 service worker, waited for if it has not started yet. */
 export async function background(context) {

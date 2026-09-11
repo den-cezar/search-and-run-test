@@ -1,8 +1,16 @@
-import { test, expect, mockGitHub, seedStorage, SAMPLE_REPO } from "./fixtures.js";
+import {
+  test,
+  expect,
+  mockGitHub,
+  seedStorage,
+  popupUrl,
+  optionsUrl,
+  waitForPopupReady,
+  waitForOptionsReady,
+  SAMPLE_REPO
+} from "./fixtures.js";
 
 const TOKEN = "gho_e2e_token";
-
-const popupUrl = (extensionId) => `chrome-extension://${extensionId}/ui/popup.html`;
 
 /** Console output tagged by the extension logger. */
 function captureExtensionLogs(page) {
@@ -16,6 +24,7 @@ function captureExtensionLogs(page) {
 
 async function runSearch(page, extensionId) {
   await page.goto(popupUrl(extensionId));
+  await waitForPopupReady(page);
   await page.fill("#testName", "test_login");
   await page.click("#searchBtn");
   await expect(page.locator("#resultsSection")).toBeVisible();
@@ -78,7 +87,8 @@ test("the Options page applies a new level without a reload", async ({ context, 
 
   const page = await context.newPage();
   const logs = captureExtensionLogs(page);
-  await page.goto(`chrome-extension://${extensionId}/ui/options.html`);
+  await page.goto(optionsUrl(extensionId));
+  await waitForOptionsReady(page);
 
   await page.selectOption("#logLevel", "silent");
   await page.click("#saveLogLevelBtn");

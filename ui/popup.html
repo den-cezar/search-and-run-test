@@ -24,6 +24,13 @@
   </nav>
 
   <main class="content">
+    <!-- Host access notice (Firefox does not grant host permissions at install) -->
+    <section id="noHostAccess" class="hidden card warn">
+      <p><strong>This extension needs access to Jira, Confluence and GitHub.</strong></p>
+      <p class="muted">Grant access to the configured sites so the extension can read your selection and reach the GitHub API.</p>
+      <button id="grantAccessBtn" class="btn btn-primary btn-block">Grant access</button>
+    </section>
+
     <!-- Not connected notice -->
     <section id="notConnected" class="hidden card warn">
       <p><strong>Not connected to GitHub.</strong></p>

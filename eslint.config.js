@@ -48,5 +48,14 @@ export default [
         ...globals.webextensions
       }
     }
+  },
+  {
+    // Build tooling runs in Node.
+    files: ["scripts/**/*.mjs"],
+    languageOptions: {
+      globals: {
+        ...globals.node
+      }
+    }
   }
 ];

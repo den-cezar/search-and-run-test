@@ -4,6 +4,8 @@ import { readFileSync, existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { PACKAGED } from "../scripts/build-package.mjs";
+
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const read = (rel) => readFileSync(path.join(ROOT, rel), "utf8");
 
@@ -14,13 +16,14 @@ const pkg = JSON.parse(read("package.json"));
 function manifestEntryPoints() {
   const files = [
     manifest.background.service_worker,
+    ...manifest.background.scripts,
     manifest.action.default_popup,
-    manifest.options_page,
+    manifest.options_ui.page,
     ...manifest.content_scripts.flatMap((cs) => cs.js),
     ...Object.values(manifest.icons),
     ...Object.values(manifest.action.default_icon)
   ];
-  return files.filter(Boolean);
+  return [...new Set(files.filter(Boolean))];
 }
 
 /** Follow relative ESM imports from a JS entry point. */
@@ -55,6 +58,30 @@ test("manifest version matches package.json", () => {
 test("manifest declares Manifest V3 with a module service worker", () => {
   assert.equal(manifest.manifest_version, 3);
   assert.equal(manifest.background.type, "module");
+});
+
+// One manifest serves both engines: Chromium uses service_worker, Firefox uses
+// scripts. Dropping either key breaks that browser.
+test("manifest declares both background entry points, pointing at the same file", () => {
+  assert.equal(manifest.background.service_worker, "background.js");
+  assert.deepEqual(manifest.background.scripts, ["background.js"]);
+});
+
+test("manifest pins the minimum versions that tolerate the dual background key", () => {
+  // Chrome refuses a V3 manifest containing background.scripts before 121.
+  assert.equal(manifest.minimum_chrome_version, "121");
+  // Firefox ignores background.scripts when service_worker is present before 121.
+  assert.equal(manifest.browser_specific_settings.gecko.strict_min_version, "121.0");
+});
+
+test("manifest carries a stable Firefox add-on id", () => {
+  assert.match(manifest.browser_specific_settings.gecko.id, /^[^@\s]+@[^@\s]+$/);
+});
+
+test("manifest uses options_ui, which both engines understand", () => {
+  assert.equal(manifest.options_ui.page, "ui/options.html");
+  assert.equal(manifest.options_ui.open_in_tab, true);
+  assert.equal("options_page" in manifest, false);
 });
 
 test("manifest requests only the permissions the code uses", () => {
@@ -97,4 +124,10 @@ test("the release zip includes every packaged file the extension loads", () => {
       `${file} would not be packaged: neither "${top}" nor "${file}" is in the release zip list`
     );
   }
+});
+
+// The build script feeds the Firefox lint and the local run; the workflow feeds
+// the published zip. They must describe the same extension.
+test("the build script and the release zip list the same files", () => {
+  assert.deepEqual([...PACKAGED].sort(), [...packagedPaths()].sort());
 });
