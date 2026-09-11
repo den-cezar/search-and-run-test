@@ -1,6 +1,6 @@
 {
   "name": "search-and-run-browser-extension",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Browser extension to search a test name and dispatch its GitHub Actions workflow.",
   "type": "module",
   "license": "MIT",
