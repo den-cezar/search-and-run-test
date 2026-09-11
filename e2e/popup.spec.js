@@ -32,6 +32,9 @@ test("shows the signed-in user once a token is stored", async ({ context, extens
   await expect(page.locator("#connStatus")).toHaveText("@octocat");
   await expect(page.locator("#searchSection")).toBeVisible();
   await expect(page.locator("#notConnected")).toBeHidden();
+  // Chromium grants declared host permissions at install and refuses to remove
+  // them, so the grant prompt is unreachable here; see lib/host-access.js tests.
+  await expect(page.locator("#noHostAccess")).toBeHidden();
 });
 
 test("falls back to disconnected when the token is rejected", async ({ context, extensionId }) => {
