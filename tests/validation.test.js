@@ -79,6 +79,13 @@ test("validateEnvironment: case-insensitive match against allowed list", () => {
   assert.equal(validateEnvironment("prod", allowed).ok, false);
 });
 
+test("validateEnvironment: rejects a missing value", () => {
+  const allowed = ["DEV", "QA"];
+  assert.equal(validateEnvironment("", allowed).ok, false);
+  assert.equal(validateEnvironment(null, allowed).ok, false);
+  assert.equal(validateEnvironment(undefined, allowed).ok, false);
+});
+
 // --- validateRepoConfig ------------------------------------------------------
 
 test("validateRepoConfig: accepts a complete config", () => {

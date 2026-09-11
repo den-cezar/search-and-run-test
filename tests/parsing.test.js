@@ -88,6 +88,12 @@ test("buildRelativePath: leaves path when base not a prefix", () => {
   assert.equal(rel, "other/path/test_x.py");
 });
 
+test("buildRelativePath: treats a missing base as no prefix", () => {
+  assert.equal(buildRelativePath("tests/test_x.py", ""), "tests/test_x.py");
+  assert.equal(buildRelativePath("tests/test_x.py", undefined), "tests/test_x.py");
+  assert.equal(buildRelativePath("tests/test_x.py", null), "tests/test_x.py");
+});
+
 test("buildNodeId: with and without param suffix", () => {
   assert.equal(buildNodeId("Notification/test_x.py", "test_x"), "Notification/test_x.py::test_x");
   assert.equal(
