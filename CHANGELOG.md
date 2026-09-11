@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.3](https://github.com/den-cezar/search-and-run-test/compare/v0.1.2...v0.1.3) (2026-09-11)
+
+
+### Bug Fixes
+
+* repair options page rendering and github error details ([#18](https://github.com/den-cezar/search-and-run-test/issues/18)) ([5ec30a5](https://github.com/den-cezar/search-and-run-test/commit/5ec30a5a4b758094906d9ea562e3ea240bd46578))
+
 ## [0.1.2](https://github.com/den-cezar/search-and-run-test/compare/v0.1.1...v0.1.2) (2026-09-09)
 
 
