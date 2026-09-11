@@ -30,6 +30,9 @@
     "e2e:chromium": "playwright test --project=chromium",
     "e2e:edge": "playwright test --project=edge",
     "e2e:headed": "playwright test --headed",
+    "package": "node scripts/build-package.mjs",
+    "firefox:run": "npm run package && web-ext run --source-dir build",
+    "firefox:lint": "npm run package && web-ext lint --source-dir build --self-hosted",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },
@@ -37,6 +40,7 @@
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.63.0",
     "eslint": "^10.10.0",
-    "globals": "^17.12.0"
+    "globals": "^17.12.0",
+    "web-ext": "^8.10.0"
   }
 }

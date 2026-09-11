@@ -4,6 +4,8 @@ import { readFileSync, existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { PACKAGED } from "../scripts/build-package.mjs";
+
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const read = (rel) => readFileSync(path.join(ROOT, rel), "utf8");
 
@@ -122,4 +124,10 @@ test("the release zip includes every packaged file the extension loads", () => {
       `${file} would not be packaged: neither "${top}" nor "${file}" is in the release zip list`
     );
   }
+});
+
+// The build script feeds the Firefox lint and the local run; the workflow feeds
+// the published zip. They must describe the same extension.
+test("the build script and the release zip list the same files", () => {
+  assert.deepEqual([...PACKAGED].sort(), [...packagedPaths()].sort());
 });
