@@ -55,6 +55,9 @@ jobs:
   e2e:
     name: E2E (${{ matrix.project }})
     needs: test
+    # Squash merges land the tree the PR already tested, so main would only
+    # repeat it. Lint and Test still run on main to cover bypassed pushes.
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false

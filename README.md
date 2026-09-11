@@ -3,8 +3,8 @@
 [![CI](https://github.com/den-cezar/search-and-run-test/actions/workflows/test.yml/badge.svg)](https://github.com/den-cezar/search-and-run-test/actions/workflows/test.yml)
 [![Release](https://github.com/den-cezar/search-and-run-test/actions/workflows/release-please.yml/badge.svg)](https://github.com/den-cezar/search-and-run-test/actions/workflows/release-please.yml)
 [![Latest release](https://img.shields.io/github/v/release/den-cezar/search-and-run-test?sort=semver)](https://github.com/den-cezar/search-and-run-test/releases/latest)
-[![Tests](https://img.shields.io/badge/tests-46%20passing-brightgreen)](#tests)
-[![Core coverage](https://img.shields.io/badge/core%20coverage-~99%25-brightgreen)](#test-coverage)
+[![Tests](https://img.shields.io/badge/tests-237%20unit%20%2B%2035%20e2e-brightgreen)](#tests)
+[![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)](#test-coverage)
 [![Chrome Web Store](https://img.shields.io/chrome-web-store/v/mphnpjnmjdmoabgcabfgpbmieamgihof?logo=googlechrome&logoColor=white&label=Chrome%20Web%20Store)](https://chromewebstore.google.com/detail/search-run-test/mphnpjnmjdmoabgcabfgpbmieamgihof)
 [![Edge Add-ons](https://img.shields.io/badge/Edge%20Add--ons-in%20review-0078d7?logo=microsoftedge&logoColor=white)](#3-install-the-extension)
 [![Manifest V3](https://img.shields.io/badge/Manifest-V3-5a5a5a)](manifest.json)
@@ -195,52 +195,66 @@ lib/logger.js          leveled console logger
 ui/popup.{html,js}     search → results → params → run
 ui/options.{html,js}   connect GitHub, manage repos & log level
 ui/styles.css          shared styles (light + dark mode)
-tests/                 node:test unit tests for lib/
+tests/                 node:test unit tests
+e2e/                   Playwright end-to-end tests
 icons/                 toolbar icons (placeholder)
 ```
 
 ## Tests
 
-The pure logic in `lib/` is covered by unit tests using Node's built-in test
-runner (no extra dependencies):
+Unit tests run on Node's built-in runner. End-to-end tests drive the unpacked
+extension in a real browser with Playwright.
 
 ```bash
-npm install   # one-time: installs ESLint dev dependencies
-npm test      # node --test
-npm run lint  # eslint .
+npm install       # one-time
+npm test          # 237 unit tests
+npm run coverage  # unit tests + coverage thresholds
+npm run e2e       # 35 end-to-end tests per browser (chromium, edge)
+npm run lint      # eslint .
 ```
 
-**46 tests** currently pass across `lib/parsing.js`, `lib/validation.js`, and
-`lib/inputs.js`.
+The e2e suite loads the extension into a persistent browser context, seeds real
+extension storage through the service worker and mocks every `api.github.com`
+call, so nothing reaches the network. Unmocked calls fail the test, as does any
+uncaught page error.
 
 ### Test coverage
 
-Coverage is measured on the pure, browser-independent core in `lib/`:
-
 ```bash
 npm run coverage
-# = node --test --experimental-test-coverage
 ```
 
-| File              | Line % | Branch % | Func % |
-|-------------------|:------:|:--------:|:------:|
-| `lib/inputs.js`     | 98.5   | 88.3     | 100    |
-| `lib/parsing.js`    | 100    | 93.3     | 100    |
-| `lib/validation.js` | 100    | 97.3     | 100    |
-| **lib (all)**       | **99.2** | **92.0** | **100** |
+The command fails below 90% lines, 85% branches or 80% functions.
 
-> **Scope:** the UI (`ui/`), GitHub client (`api/github-client.js`), storage
-> wrapper, and the background/content scripts rely on browser/Chrome APIs and are
-> validated manually by loading the unpacked extension — they are intentionally
-> outside the unit-test coverage above.
+| File                      | Line % | Branch % | Func % |
+|---------------------------|:------:|:--------:|:------:|
+| `api/github-client.js`    | 100    | 100      | 100    |
+| `api/storage-service.js`  | 100    | 100      | 100    |
+| `background.js`           | 100    | 100      | 100    |
+| `lib/browser-api.js`      | 100    | 100      | 100    |
+| `lib/html.js`             | 100    | 100      | 100    |
+| `lib/inputs.js`           | 100    | 100      | 100    |
+| `lib/logger.js`           | 100    | 100      | 100    |
+| `lib/parsing.js`          | 100    | 100      | 100    |
+| `lib/validation.js`       | 100    | 100      | 100    |
+| **all files**             | **100** | **100** | **100** |
+
+> **Scope:** `ui/popup.js`, `ui/options.js` and `content.js` are DOM controllers
+> and are deliberately left out of the unit coverage above — they are covered by
+> the Playwright suite instead. See [docs/manual-test-plan.md](docs/manual-test-plan.md)
+> for what is left to verify by hand before a store release.
 
 ## Continuous integration
 
-Every push and pull request to `main` runs the [CI workflow](.github/workflows/test.yml):
+Every pull request to `main` runs the [CI workflow](.github/workflows/test.yml):
 
 1. **Lint** — `npm run lint` (ESLint).
-2. **Test** — `npm test` and `npm run coverage`. This job **depends on Lint**, so
-   tests only run once linting passes.
+2. **Test** — `npm test` and `npm run coverage`. Depends on Lint.
+3. **E2E** — the Playwright suite against Chromium and Microsoft Edge. Depends on
+   Test, and runs on pull requests only: squash merges land the tree the PR
+   already tested, so repeating the browser matrix on `main` adds no signal.
+
+Lint and Test also run on pushes to `main`.
 
 Pull-request titles are checked by the
 [PR Lint workflow](.github/workflows/pr-lint.yml) and must follow
@@ -256,7 +270,7 @@ squash-merge commit subject that drives versioning.
   into a single PR.
 - **GitHub Actions** used by the workflows.
 
-These PRs go through the same CI (lint + test) before they can be merged.
+These PRs go through the same CI (lint, test and e2e) before they can be merged.
 
 ## Releases & versioning
 
