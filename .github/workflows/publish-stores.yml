@@ -213,7 +213,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: 22
+          node-version-file: .nvmrc
 
       - name: Sign and submit to addons.mozilla.org
         env:

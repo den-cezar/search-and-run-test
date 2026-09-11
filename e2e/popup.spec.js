@@ -4,18 +4,16 @@ import {
   mockGitHub,
   seedStorage,
   readStorage,
+  openPopup,
   SAMPLE_REPO
 } from "./fixtures.js";
 
 const TOKEN = "gho_e2e_token";
 
-const popupUrl = (extensionId, query = "") =>
-  `chrome-extension://${extensionId}/ui/popup.html${query}`;
 
 test("shows the disconnected state when no token is stored", async ({ context, extensionId }) => {
   await mockGitHub(context);
-  const page = await context.newPage();
-  await page.goto(popupUrl(extensionId));
+  const page = await openPopup(context, extensionId);
 
   await expect(page.locator("#notConnected")).toBeVisible();
   await expect(page.locator("#connStatus")).toHaveText("Disconnected");
@@ -26,8 +24,7 @@ test("shows the signed-in user once a token is stored", async ({ context, extens
   await mockGitHub(context);
   await seedStorage(context, { local: { gh_access_token: TOKEN } });
 
-  const page = await context.newPage();
-  await page.goto(popupUrl(extensionId));
+  const page = await openPopup(context, extensionId);
 
   await expect(page.locator("#connStatus")).toHaveText("@octocat");
   await expect(page.locator("#searchSection")).toBeVisible();
@@ -44,8 +41,7 @@ test("falls back to disconnected when the token is rejected", async ({ context, 
   );
   await seedStorage(context, { local: { gh_access_token: "expired" } });
 
-  const page = await context.newPage();
-  await page.goto(popupUrl(extensionId));
+  const page = await openPopup(context, extensionId);
 
   await expect(page.locator("#connStatus")).toHaveText("Disconnected");
   await expect(page.locator("#notConnected")).toBeVisible();
@@ -58,8 +54,7 @@ test("rejects an invalid test name before searching", async ({ context, extensio
     sync: { repos_config: [SAMPLE_REPO] }
   });
 
-  const page = await context.newPage();
-  await page.goto(popupUrl(extensionId));
+  const page = await openPopup(context, extensionId);
   await page.fill("#testName", "not a test name!");
   await page.click("#searchBtn");
 
@@ -74,8 +69,7 @@ test("search → select → configure → dispatch produces a run link", async (
     sync: { repos_config: [SAMPLE_REPO] }
   });
 
-  const page = await context.newPage();
-  await page.goto(popupUrl(extensionId));
+  const page = await openPopup(context, extensionId);
 
   await page.fill("#testName", "test_login");
   await page.click("#searchBtn");
@@ -122,8 +116,7 @@ test("dispatches the configured defaults when nothing is changed", async ({ cont
     sync: { repos_config: [SAMPLE_REPO] }
   });
 
-  const page = await context.newPage();
-  await page.goto(popupUrl(extensionId));
+  const page = await openPopup(context, extensionId);
   await page.fill("#testName", "test_login");
   await page.click("#searchBtn");
   await page.locator(".result-item").first().click();
@@ -144,8 +137,7 @@ test("blocks the run when the repo has no workflow inputs configured", async ({ 
     sync: { repos_config: [{ ...SAMPLE_REPO, inputs: [] }] }
   });
 
-  const page = await context.newPage();
-  await page.goto(popupUrl(extensionId));
+  const page = await openPopup(context, extensionId);
   await page.fill("#testName", "test_login");
   await page.click("#searchBtn");
   await page.locator(".result-item").first().click();
@@ -164,8 +156,7 @@ test("surfaces a dispatch failure instead of a run link", async ({ context, exte
     sync: { repos_config: [SAMPLE_REPO] }
   });
 
-  const page = await context.newPage();
-  await page.goto(popupUrl(extensionId));
+  const page = await openPopup(context, extensionId);
   await page.fill("#testName", "test_login");
   await page.click("#searchBtn");
   await page.locator(".result-item").first().click();
@@ -187,8 +178,7 @@ test("consumes a context-menu selection and searches immediately", async ({ cont
     sync: { repos_config: [SAMPLE_REPO] }
   });
 
-  const page = await context.newPage();
-  await page.goto(popupUrl(extensionId, "?source=context"));
+  const page = await openPopup(context, extensionId, "?source=context");
 
   await expect(page.locator("#testName")).toHaveValue("test_login");
   await expect(page.locator("#resultsSection")).toBeVisible();
@@ -206,8 +196,7 @@ test("reports when the search finds nothing", async ({ context, extensionId }) =
     sync: { repos_config: [SAMPLE_REPO] }
   });
 
-  const page = await context.newPage();
-  await page.goto(popupUrl(extensionId));
+  const page = await openPopup(context, extensionId);
   await page.fill("#testName", "test_missing");
   await page.click("#searchBtn");
 
@@ -225,8 +214,7 @@ test("surfaces a search failure without leaving the search step", async ({ conte
     sync: { repos_config: [SAMPLE_REPO] }
   });
 
-  const page = await context.newPage();
-  await page.goto(popupUrl(extensionId));
+  const page = await openPopup(context, extensionId);
   await page.fill("#testName", "test_login");
   await page.click("#searchBtn");
 
@@ -242,8 +230,7 @@ test("filters a long result list and navigates back and forth", async ({ context
     sync: { repos_config: [SAMPLE_REPO] }
   });
 
-  const page = await context.newPage();
-  await page.goto(popupUrl(extensionId));
+  const page = await openPopup(context, extensionId);
   await page.fill("#testName", "test_login");
   await page.click("#searchBtn");
 
@@ -280,8 +267,7 @@ test("escapes hostile repository data instead of executing it", async ({ context
     sync: { repos_config: [{ ...SAMPLE_REPO, name: '<img src=x onerror="window.__pwned=1">' }] }
   });
 
-  const page = await context.newPage();
-  await page.goto(popupUrl(extensionId));
+  const page = await openPopup(context, extensionId);
   await page.fill("#testName", "test_login");
   await page.click("#searchBtn");
 
