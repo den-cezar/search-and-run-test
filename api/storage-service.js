@@ -1,13 +1,30 @@
 /**
- * Storage service — thin wrapper over chrome.storage for the extension.
+ * Storage service — thin wrapper over the extension storage API.
  */
 
 import { KEYS, OAUTH_CLIENT_ID } from "../config/config.js";
+import { getBrowserApi } from "../lib/browser-api.js";
 
-class StorageService {
-  constructor() {
-    this.local = chrome.storage.local;
-    this.sync = chrome.storage.sync;
+export class StorageService {
+  /** @param {object} [api] WebExtension namespace; resolved lazily when omitted. */
+  constructor(api) {
+    this._api = api || null;
+  }
+
+  get _storage() {
+    const api = this._api || getBrowserApi();
+    if (!api || !api.storage) {
+      throw new Error("Extension storage API is unavailable.");
+    }
+    return api.storage;
+  }
+
+  get local() {
+    return this._storage.local;
+  }
+
+  get sync() {
+    return this._storage.sync;
   }
 
   // --- GitHub access token (local only) ---
