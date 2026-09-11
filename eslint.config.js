@@ -37,5 +37,16 @@ export default [
         ...globals.node
       }
     }
+  },
+  {
+    // Playwright specs run in Node; page.evaluate bodies run in the browser.
+    files: ["e2e/**/*.js", "playwright.config.js"],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        ...globals.browser,
+        ...globals.webextensions
+      }
+    }
   }
 ];

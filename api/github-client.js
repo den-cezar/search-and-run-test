@@ -115,12 +115,14 @@ class GitHubClient {
       return new GitHubError("Not found (404).", { status: 404, kind: "not-found" });
     }
 
+    // Read the body once: res.json() consumes it, so a text fallback afterwards
+    // would always come back empty.
+    const body = await res.text().catch(() => "");
     let detail;
     try {
-      const data = await res.json();
-      detail = data.message || "";
+      detail = JSON.parse(body).message || "";
     } catch (_) {
-      detail = await res.text().catch(() => "");
+      detail = body.slice(0, 200);
     }
     return new GitHubError(
       `GitHub request failed (${res.status})${detail ? `: ${detail}` : ""}`,

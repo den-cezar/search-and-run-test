@@ -51,3 +51,42 @@ jobs:
 
       - name: Run tests with coverage
         run: npm run coverage
+
+  e2e:
+    name: E2E (${{ matrix.project }})
+    needs: test
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - project: chromium
+            browser: chromium
+          - project: edge
+            browser: msedge
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install the Playwright browser
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+
+      - name: Run end-to-end tests
+        run: npm run e2e -- --project=${{ matrix.project }}
+
+      - name: Upload the report on failure
+        if: failure()
+        uses: actions/upload-artifact@v5
+        with:
+          name: playwright-report-${{ matrix.project }}
+          path: playwright-report/
+          retention-days: 7
