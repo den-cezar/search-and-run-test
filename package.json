@@ -31,6 +31,7 @@
     "e2e:edge": "playwright test --project=edge",
     "e2e:headed": "playwright test --headed",
     "package": "node scripts/build-package.mjs",
+    "firefox:build": "npm run package && web-ext build --source-dir build --overwrite-dest",
     "firefox:run": "npm run package && web-ext run --source-dir build",
     "firefox:lint": "npm run package && web-ext lint --source-dir build --self-hosted",
     "lint": "eslint .",
