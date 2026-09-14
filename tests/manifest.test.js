@@ -78,6 +78,22 @@ test("manifest carries a stable Firefox add-on id", () => {
   assert.match(manifest.browser_specific_settings.gecko.id, /^[^@\s]+@[^@\s]+$/);
 });
 
+// Mandatory on AMO since 2025-11-03, and only enforced server-side: the linter
+// bundled with web-ext does not flag it.
+test("manifest declares its data collection", () => {
+  const declared = manifest.browser_specific_settings.gecko.data_collection_permissions;
+  assert.ok(declared, "data_collection_permissions is required by AMO");
+  assert.ok(Array.isArray(declared.required) && declared.required.length);
+
+  // Anything beyond "none" requires Firefox 140+ or a custom consent screen.
+  if (!declared.required.includes("none")) {
+    assert.ok(
+      parseFloat(manifest.browser_specific_settings.gecko.strict_min_version) >= 140,
+      "declaring data collection requires strict_min_version 140.0 or a custom consent flow"
+    );
+  }
+});
+
 test("manifest uses options_ui, which both engines understand", () => {
   assert.equal(manifest.options_ui.page, "ui/options.html");
   assert.equal(manifest.options_ui.open_in_tab, true);
