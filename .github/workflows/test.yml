@@ -52,6 +52,26 @@ jobs:
       - name: Run tests with coverage
         run: npm run coverage
 
+  firefox-lint:
+    name: Firefox add-on lint
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run the Mozilla add-on linter
+        run: npm run firefox:lint
+
   e2e:
     name: E2E (${{ matrix.project }})
     needs: test

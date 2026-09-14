@@ -5,22 +5,24 @@
  */
 
 import { storage } from "./api/storage-service.js";
+import { getBrowserApi } from "./lib/browser-api.js";
 
+const api = getBrowserApi();
 const MENU_ID = "search-and-run-test";
 
-chrome.runtime.onInstalled.addListener((details) => {
-  chrome.contextMenus.create({
+api.runtime.onInstalled.addListener((details) => {
+  api.contextMenus.create({
     id: MENU_ID,
     title: 'Search and Run Test: "%s"',
     contexts: ["selection"]
   });
 
   if (details.reason === "install") {
-    chrome.runtime.openOptionsPage();
+    api.runtime.openOptionsPage();
   }
 });
 
-chrome.contextMenus.onClicked.addListener(async (info) => {
+api.contextMenus.onClicked.addListener(async (info) => {
   if (info.menuItemId !== MENU_ID) return;
 
   const selection = (info.selectionText || "").trim();
@@ -28,8 +30,8 @@ chrome.contextMenus.onClicked.addListener(async (info) => {
 
   await storage.setPendingSelection(selection);
 
-  chrome.windows.create({
-    url: chrome.runtime.getURL("ui/popup.html?source=context"),
+  api.windows.create({
+    url: api.runtime.getURL("ui/popup.html?source=context"),
     type: "popup",
     width: 460,
     height: 640

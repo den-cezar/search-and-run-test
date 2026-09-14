@@ -1,6 +1,6 @@
 # Privacy Policy — Search & Run Test
 
-**Last updated:** 2026-09-09
+**Last updated:** 2026-09-14
 
 Search & Run Test is a free, open-source browser extension published under the
 MIT license. Its source code is available at
@@ -16,22 +16,22 @@ user supplies, and only when the user asks it to.
 
 All data stays in the browser's own extension storage on the user's device.
 
-Stored in `chrome.storage.local`:
+Stored in extension local storage:
 
 - The GitHub OAuth access token obtained when the user connects their account.
 - The text selection handed from the right-click menu to the popup. It is deleted
   as soon as the popup reads it.
 
-Stored in `chrome.storage.sync`:
+Stored in extension sync storage:
 
 - The list of GitHub repositories the user configures, including owner, repository
   name, workflow file, branch, path base, and workflow input definitions.
 - The GitHub OAuth App client ID the user provides.
 - The console log-level preference.
 
-Data in `chrome.storage.sync` is replicated by the browser itself across the
-user's signed-in profiles. That synchronisation is performed by Chrome or Edge
-under their own privacy policies, not by this extension or its developer.
+Data in extension sync storage is replicated by the browser itself across the
+user's signed-in profiles. That synchronisation is performed by the browser
+vendor under their own privacy policy, not by this extension or its developer.
 
 ## What the extension transmits
 
@@ -53,6 +53,10 @@ A content script runs on `*.atlassian.net` pages. It does one thing: when the
 extension explicitly asks, it returns the text the user has currently selected,
 so the popup can pre-fill the test name field. It does not read, store, or
 transmit page content, and it takes no action on its own.
+
+On Firefox, access to these sites is not granted at install time. The extension
+asks for it the first time the popup is opened, and it can be withdrawn at any
+time from `about:addons`.
 
 ## Authentication
 

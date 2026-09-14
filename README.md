@@ -7,12 +7,13 @@
 [![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)](#test-coverage)
 [![Chrome Web Store](https://img.shields.io/chrome-web-store/v/mphnpjnmjdmoabgcabfgpbmieamgihof?logo=googlechrome&logoColor=white&label=Chrome%20Web%20Store)](https://chromewebstore.google.com/detail/search-run-test/mphnpjnmjdmoabgcabfgpbmieamgihof)
 [![Edge Add-ons](https://img.shields.io/badge/Edge%20Add--ons-in%20review-0078d7?logo=microsoftedge&logoColor=white)](#3-install-the-extension)
+[![Firefox Add-ons](https://img.shields.io/badge/Firefox%20Add--ons-in%20review-ff7139?logo=firefoxbrowser&logoColor=white)](#3-install-the-extension)
 [![Manifest V3](https://img.shields.io/badge/Manifest-V3-5a5a5a)](manifest.json)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Select a test name on a Jira/Confluence page, find it across configured GitHub
 repos, and dispatch the matching GitHub Actions workflow — without leaving the
-browser. Manifest V3, works in Chrome and Edge.
+browser. Manifest V3, works in Chrome, Edge and Firefox 121+.
 
 **[Install from the Chrome Web Store](https://chromewebstore.google.com/detail/search-run-test/mphnpjnmjdmoabgcabfgpbmieamgihof)**
 
@@ -71,6 +72,16 @@ Updates arrive automatically.
 Under review at the Microsoft Edge Add-ons store. Until it is published, use the
 unpacked install below — Edge loads Manifest V3 extensions the same way Chrome does.
 
+**Firefox**
+
+Under review at addons.mozilla.org. Requires Firefox 121 or later. To try it
+before then, open `about:debugging#/runtime/this-firefox` → **Load Temporary
+Add-on** and pick the `manifest.json` from an unzipped release.
+
+Firefox does not grant site access at install time, so the first time you open
+the popup it asks you to **Grant access** to Jira, Confluence and GitHub. Search
+and dispatch stay disabled until you do.
+
 **Unpacked — from a release**
 
 1. Open the [latest release](https://github.com/den-cezar/search-and-run-test/releases/latest)
@@ -80,7 +91,7 @@ unpacked install below — Edge loads Manifest V3 extensions the same way Chrome
 
 **Unpacked — from source (for development)**
 
-1. Open `chrome://extensions` (or `edge://extensions`).
+1. Open `chrome://extensions` (or `edge://extensions`; for Firefox see above).
 2. Enable **Developer mode**.
 3. **Load unpacked** → select this folder.
 4. Open the extension **Options**, set the client ID, click **Connect GitHub**, and
@@ -138,7 +149,7 @@ completely different parameters.
 - A fresh install starts with **no repositories** — add them manually, or use
   **Export** / **Import** to move a config between machines (JSON).
 - **Advanced → Log level**: `debug` / `info` / `warn` / `error` / `silent`. Controls
-  the verbosity of the extension's console logging (stored in `chrome.storage.sync`).
+  the verbosity of the extension's console logging (stored in extension sync storage).
 
 ## Input validation
 
@@ -182,15 +193,18 @@ Dispatched with `return_run_details: true` so the response includes the run URL.
 ## File layout
 
 ```
-manifest.json          MV3 manifest
-background.js          service worker: context menu + selection hand-off
+manifest.json          MV3 manifest (service worker for Chromium, event page for Firefox)
+background.js          context menu + selection hand-off
 content.js            captures the page text selection
 config/config.js       client ID, OAuth/GitHub endpoints, new-repo template, storage keys
-api/storage-service.js chrome.storage wrapper
+api/storage-service.js extension storage wrapper
 api/github-client.js   device flow, code search, workflow dispatch, error mapping
 lib/parsing.js         pure parsing helpers (test name, node ID) — unit-tested
 lib/validation.js      pure input validators — unit-tested
 lib/inputs.js          pure helpers for user-defined workflow inputs — unit-tested
+lib/browser-api.js     resolves the `browser` / `chrome` namespace
+lib/host-access.js     host permission checks (Firefox grants them at runtime)
+lib/html.js            HTML escaping for innerHTML interpolation
 lib/logger.js          leveled console logger
 ui/popup.{html,js}     search → results → params → run
 ui/options.{html,js}   connect GitHub, manage repos & log level

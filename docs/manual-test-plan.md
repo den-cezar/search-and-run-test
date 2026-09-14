@@ -22,6 +22,7 @@ them by hand adds no signal:
 | Context-menu handler: stores selection, opens runner window | `tests/background.test.js` |
 | Log level filtering and persistence | `tests/logger.test.js` |
 | HTML escaping of repo and GitHub-supplied values | `tests/html.test.js` |
+| Host permission detection and request logic | `tests/host-access.test.js` |
 | Manifest shape, version parity, packaged-file list | `tests/manifest.test.js` |
 | Popup: disconnected state, search → select → configure → dispatch, error surfacing | `e2e/popup.spec.js` |
 | Options: save/remove repos, validation, log level, disconnect | `e2e/options.spec.js` |
@@ -127,18 +128,28 @@ Record the build under test: `version`, `commit`, `browser + version`, `date`.
 | --- | --- | --- |
 | G1 | Install the Chrome Web Store build in a clean profile and run D1 → E6 | Identical behaviour to the unpacked build |
 | G2 | Install the Edge Add-ons build in a clean profile and run D1 → E6 | Identical behaviour |
-| G3 | Upgrade from the previous published version over an existing profile | Repos, client ID and token survive; no duplicate context-menu entry |
-| G4 | Review the permission prompt shown at install | Only storage, context menus, activeTab and the declared hosts |
+| G3 | Install the addons.mozilla.org build in a clean profile and run H2 → H5 | Identical behaviour |
+| G4 | Upgrade from the previous published version over an existing profile | Repos, client ID and token survive; no duplicate context-menu entry |
+| G5 | Review the permission prompt shown at install | Only storage, context menus, activeTab and the declared hosts |
 
-### H. Firefox (once the port lands)
+### H. Firefox
+
+The grant flow cannot be automated: Chromium refuses to remove declared host
+permissions, so the prompt is unreachable in the Playwright suite. The logic
+behind it is unit-covered in `tests/host-access.test.js`; these steps verify the
+wiring in a real Firefox.
 
 | ID | Steps | Expected |
 | --- | --- | --- |
-| H1 | Install the signed build in a clean Firefox profile | Options page opens; no background page errors |
-| H2 | Open the popup before granting host access | The "Grant access" prompt is shown instead of a silent failure |
-| H3 | Grant access, then run D1 → E6 | Identical behaviour to Chrome |
-| H4 | Revoke host access from `about:addons` and reopen the popup | The grant prompt returns; no unhandled rejection in the console |
-| H5 | Restart the browser and reopen the popup | The event page restarts cleanly; the context menu still works |
+| H1 | Load the release zip via `about:debugging` → Load Temporary Add-on | Options opens; no errors in the extension console |
+| H2 | Open the popup before granting site access | "Grant access" card shown; search hidden; the step bar is hidden |
+| H3 | Click **Grant access** and accept the Firefox prompt | Card disappears, connection state is checked, search becomes usable |
+| H4 | Click **Grant access** and dismiss the prompt | An error message appears; the card stays; no unhandled rejection |
+| H5 | Grant access, then run D1 → E6 | Identical behaviour to Chrome |
+| H6 | Revoke site access from `about:addons`, reopen the popup | The grant card returns |
+| H7 | Restart the browser and reopen the popup | The event page restarts cleanly; the context menu still works |
+| H8 | Right-click a selection on Jira → **Search and Run Test** | The runner window opens with the selection pre-filled |
+| H9 | Check the add-on on Firefox 120 or older | Refuses to install (`strict_min_version` is 121.0) |
 
 ## Result log
 

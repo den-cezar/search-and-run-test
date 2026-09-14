@@ -15,6 +15,7 @@ import {
 } from "../lib/inputs.js";
 import { createLogger, initLogLevelFromStorage, setLogLevel } from "../lib/logger.js";
 import { esc } from "../lib/html.js";
+import { getBrowserApi } from "../lib/browser-api.js";
 
 const log = createLogger("options");
 const el = (id) => document.getElementById(id);
@@ -67,13 +68,13 @@ async function loadClientId() {
 }
 
 async function loadLogLevel() {
-  const r = await chrome.storage.sync.get("log_level");
+  const r = await getBrowserApi().storage.sync.get("log_level");
   el("logLevel").value = r.log_level || "info";
 }
 
 async function saveLogLevel() {
   const level = el("logLevel").value;
-  await chrome.storage.sync.set({ log_level: level });
+  await getBrowserApi().storage.sync.set({ log_level: level });
   setLogLevel(level);
   setDirty("logLevel", false);
   log.info("log level set to", level);

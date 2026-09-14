@@ -197,3 +197,37 @@ jobs:
           done
           echo "Timed out waiting for the Edge submission." >&2
           exit 1
+
+  firefox:
+    name: Firefox Add-ons
+    runs-on: ubuntu-latest
+    environment: firefox-add-ons
+    steps:
+      - name: Download release package
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ inputs.tag }}
+        run: gh release download "$TAG" --pattern '*.zip' --dir dist
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+
+      - name: Sign and submit to addons.mozilla.org
+        env:
+          AMO_JWT_ISSUER: ${{ secrets.AMO_JWT_ISSUER }}
+          AMO_JWT_SECRET: ${{ secrets.AMO_JWT_SECRET }}
+        run: |
+          set -euo pipefail
+          zip=$(find dist -name '*.zip' | head -n 1)
+          mkdir -p build
+          unzip -q "$zip" -d build
+          # web-ext signs a source directory, not a zip.
+          npx --yes web-ext@8 sign \
+            --source-dir build \
+            --channel listed \
+            --api-key "$AMO_JWT_ISSUER" \
+            --api-secret "$AMO_JWT_SECRET" \
+            --no-input

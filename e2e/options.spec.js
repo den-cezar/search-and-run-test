@@ -1,8 +1,7 @@
-import { test, expect, mockGitHub, seedStorage, readStorage } from "./fixtures.js";
+import { test, expect, mockGitHub, seedStorage, readStorage, openOptions } from "./fixtures.js";
 
 const TOKEN = "gho_e2e_token";
 
-const optionsUrl = (extensionId) => `chrome-extension://${extensionId}/ui/options.html`;
 
 async function fillRepoRow(page, index, values) {
   for (const [field, value] of Object.entries(values)) {
@@ -12,8 +11,7 @@ async function fillRepoRow(page, index, values) {
 
 test("saves a repository and reloads it from sync storage", async ({ context, extensionId }) => {
   await mockGitHub(context);
-  const page = await context.newPage();
-  await page.goto(optionsUrl(extensionId));
+  const page = await openOptions(context, extensionId);
 
   await expect(page.locator("#saveReposBtn")).toBeDisabled();
   await page.click("#addRepoBtn");
@@ -44,8 +42,7 @@ test("saves a repository and reloads it from sync storage", async ({ context, ex
 
 test("refuses to save an incomplete repository", async ({ context, extensionId }) => {
   await mockGitHub(context);
-  const page = await context.newPage();
-  await page.goto(optionsUrl(extensionId));
+  const page = await openOptions(context, extensionId);
 
   await page.click("#addRepoBtn");
   await fillRepoRow(page, 0, { name: "Broken", owner: "acme" });
@@ -66,8 +63,7 @@ test("removes a repository and persists the removal", async ({ context, extensio
     }
   });
 
-  const page = await context.newPage();
-  await page.goto(optionsUrl(extensionId));
+  const page = await openOptions(context, extensionId);
   await expect(page.locator("#repo-0-name")).toHaveValue("Core");
 
   await page.click(".remove-repo");
@@ -80,8 +76,7 @@ test("removes a repository and persists the removal", async ({ context, extensio
 
 test("saves the log level", async ({ context, extensionId }) => {
   await mockGitHub(context);
-  const page = await context.newPage();
-  await page.goto(optionsUrl(extensionId));
+  const page = await openOptions(context, extensionId);
 
   await expect(page.locator("#saveLogLevelBtn")).toBeDisabled();
   await page.selectOption("#logLevel", "debug");
@@ -99,8 +94,7 @@ test("shows the connected user and clears the token on disconnect", async ({ con
   await mockGitHub(context);
   await seedStorage(context, { local: { gh_access_token: TOKEN } });
 
-  const page = await context.newPage();
-  await page.goto(optionsUrl(extensionId));
+  const page = await openOptions(context, extensionId);
 
   await expect(page.locator("#connStatus")).toContainText("@octocat");
 
@@ -113,8 +107,7 @@ test("shows the connected user and clears the token on disconnect", async ({ con
 
 test("stores the OAuth client id when the field changes", async ({ context, extensionId }) => {
   await mockGitHub(context);
-  const page = await context.newPage();
-  await page.goto(optionsUrl(extensionId));
+  const page = await openOptions(context, extensionId);
 
   await page.fill("#clientId", "Iv1.e2eclientid");
   await page.locator("#clientId").blur();
@@ -150,8 +143,7 @@ const upload = (page, name, contents) =>
 
 test("imports a repository config and saves it", async ({ context, extensionId }) => {
   await mockGitHub(context);
-  const page = await context.newPage();
-  await page.goto(optionsUrl(extensionId));
+  const page = await openOptions(context, extensionId);
 
   await upload(page, "repos.json", JSON.stringify(IMPORTABLE));
 
@@ -180,8 +172,7 @@ test("imports a repository config and saves it", async ({ context, extensionId }
 
 test("imports a wrapped { repos: [...] } document", async ({ context, extensionId }) => {
   await mockGitHub(context);
-  const page = await context.newPage();
-  await page.goto(optionsUrl(extensionId));
+  const page = await openOptions(context, extensionId);
 
   await upload(page, "repos.json", JSON.stringify({ repos: IMPORTABLE }));
 
@@ -206,8 +197,7 @@ for (const [name, contents] of BAD_IMPORTS) {
       }
     });
 
-    const page = await context.newPage();
-    await page.goto(optionsUrl(extensionId));
+    const page = await openOptions(context, extensionId);
     await upload(page, "broken.json", contents);
 
     await expect(page.locator("#message")).toContainText("Import failed");
@@ -219,8 +209,7 @@ for (const [name, contents] of BAD_IMPORTS) {
 
 test("re-importing the same file after a failure still works", async ({ context, extensionId }) => {
   await mockGitHub(context);
-  const page = await context.newPage();
-  await page.goto(optionsUrl(extensionId));
+  const page = await openOptions(context, extensionId);
 
   await upload(page, "repos.json", "{ not json");
   await expect(page.locator("#message")).toContainText("Import failed");
@@ -233,8 +222,7 @@ test("exports the saved repositories as JSON", async ({ context, extensionId }) 
   await mockGitHub(context);
   await seedStorage(context, { sync: { repos_config: IMPORTABLE } });
 
-  const page = await context.newPage();
-  await page.goto(optionsUrl(extensionId));
+  const page = await openOptions(context, extensionId);
 
   const [download] = await Promise.all([
     page.waitForEvent("download"),
@@ -254,8 +242,7 @@ test("an exported config can be imported back unchanged", async ({ context, exte
   await mockGitHub(context);
   await seedStorage(context, { sync: { repos_config: IMPORTABLE } });
 
-  const page = await context.newPage();
-  await page.goto(optionsUrl(extensionId));
+  const page = await openOptions(context, extensionId);
 
   const [download] = await Promise.all([
     page.waitForEvent("download"),
@@ -276,8 +263,7 @@ test("an exported config can be imported back unchanged", async ({ context, exte
 
 test("escapes hostile values in an imported config", async ({ context, extensionId }) => {
   await mockGitHub(context);
-  const page = await context.newPage();
-  await page.goto(optionsUrl(extensionId));
+  const page = await openOptions(context, extensionId);
 
   // Pre-encoded entities must not be decoded back into live markup.
   await upload(

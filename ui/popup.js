@@ -8,6 +8,10 @@ import { validateTestName, validateBranch } from "../lib/validation.js";
 import { buildDispatchInputs, defaultValueFor } from "../lib/inputs.js";
 import { createLogger, initLogLevelFromStorage } from "../lib/logger.js";
 import { esc } from "../lib/html.js";
+import { getBrowserApi } from "../lib/browser-api.js";
+import { hasHostAccess, requestHostAccess } from "../lib/host-access.js";
+
+const api = getBrowserApi();
 
 const log = createLogger("popup");
 const el = (id) => document.getElementById(id);
@@ -25,15 +29,44 @@ async function init() {
   await initLogLevelFromStorage();
   attachListeners();
   setStep("search");
+  if (!(await checkHostAccess())) return;
   const connected = await checkConnection();
   if (!connected) return;
   await prefillTestName();
 }
 
+/** Firefox does not grant host permissions at install; ask before continuing. */
+async function checkHostAccess() {
+  const granted = await hasHostAccess();
+  el("noHostAccess").classList.toggle("hidden", granted);
+  if (!granted) {
+    hideAllSections();
+    el("steps").classList.add("hidden");
+    el("noHostAccess").classList.remove("hidden");
+    log.warn("host permissions not granted");
+  }
+  return granted;
+}
+
+async function onGrantAccess() {
+  if (!(await requestHostAccess())) {
+    showMessage("Access was not granted. The extension cannot search without it.", "error");
+    return;
+  }
+  el("noHostAccess").classList.add("hidden");
+  el("steps").classList.remove("hidden");
+  setStep("search");
+  clearMessage();
+  if (await checkConnection()) {
+    await prefillTestName();
+  }
+}
+
 function attachListeners() {
-  el("openOptionsBtn").addEventListener("click", () => chrome.runtime.openOptionsPage());
-  el("setupOptionsBtn").addEventListener("click", () => chrome.runtime.openOptionsPage());
-  el("connStatus").addEventListener("click", () => chrome.runtime.openOptionsPage());
+  el("openOptionsBtn").addEventListener("click", () => api.runtime.openOptionsPage());
+  el("setupOptionsBtn").addEventListener("click", () => api.runtime.openOptionsPage());
+  el("connStatus").addEventListener("click", () => api.runtime.openOptionsPage());
+  el("grantAccessBtn").addEventListener("click", onGrantAccess);
   el("searchBtn").addEventListener("click", onSearch);
   el("testName").addEventListener("keydown", (e) => {
     if (e.key === "Enter") onSearch();
@@ -168,9 +201,9 @@ async function prefillTestName() {
   }
   // 2) Live selection from the active tab.
   try {
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    const [tab] = await api.tabs.query({ active: true, currentWindow: true });
     if (tab && tab.id) {
-      const resp = await chrome.tabs.sendMessage(tab.id, { action: "getSelection" }).catch(() => null);
+      const resp = await api.tabs.sendMessage(tab.id, { action: "getSelection" }).catch(() => null);
       if (resp && resp.selection) {
         el("testName").value = resp.selection;
       }
@@ -353,7 +386,7 @@ function setStep(active) {
 }
 
 function hideAllSections() {
-  ["notConnected", "searchSection", "resultsSection", "paramsSection", "outputSection"].forEach((id) =>
+  ["noHostAccess", "notConnected", "searchSection", "resultsSection", "paramsSection", "outputSection"].forEach((id) =>
     el(id).classList.add("hidden")
   );
 }
