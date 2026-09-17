@@ -3,11 +3,11 @@
 [![CI](https://github.com/den-cezar/search-and-run-test/actions/workflows/test.yml/badge.svg)](https://github.com/den-cezar/search-and-run-test/actions/workflows/test.yml)
 [![Release](https://github.com/den-cezar/search-and-run-test/actions/workflows/release-please.yml/badge.svg)](https://github.com/den-cezar/search-and-run-test/actions/workflows/release-please.yml)
 [![Latest release](https://img.shields.io/github/v/release/den-cezar/search-and-run-test?sort=semver)](https://github.com/den-cezar/search-and-run-test/releases/latest)
-[![Tests](https://img.shields.io/badge/tests-237%20unit%20%2B%2035%20e2e-brightgreen)](#tests)
+[![Tests](https://img.shields.io/badge/tests-263%20unit%20%2B%2035%20e2e-brightgreen)](#tests)
 [![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)](#test-coverage)
 [![Chrome Web Store](https://img.shields.io/chrome-web-store/v/mphnpjnmjdmoabgcabfgpbmieamgihof?logo=googlechrome&logoColor=white&label=Chrome%20Web%20Store)](https://chromewebstore.google.com/detail/search-run-test/mphnpjnmjdmoabgcabfgpbmieamgihof)
 [![Edge Add-ons](https://img.shields.io/badge/Edge%20Add--ons-in%20review-0078d7?logo=microsoftedge&logoColor=white)](#3-install-the-extension)
-[![Firefox Add-ons](https://img.shields.io/badge/Firefox%20Add--ons-in%20review-ff7139?logo=firefoxbrowser&logoColor=white)](#3-install-the-extension)
+[![Firefox Add-ons](https://img.shields.io/amo/v/search-run-test?logo=firefoxbrowser&logoColor=white&label=Firefox%20Add-ons&color=ff7139)](https://addons.mozilla.org/firefox/addon/search-run-test/)
 [![Manifest V3](https://img.shields.io/badge/Manifest-V3-5a5a5a)](manifest.json)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -74,9 +74,9 @@ unpacked install below — Edge loads Manifest V3 extensions the same way Chrome
 
 **Firefox**
 
-Under review at addons.mozilla.org. Requires Firefox 121 or later. To try it
-before then, open `about:debugging#/runtime/this-firefox` → **Load Temporary
-Add-on** and pick the `manifest.json` from an unzipped release.
+Install from
+[Firefox Add-ons](https://addons.mozilla.org/firefox/addon/search-run-test/).
+Requires Firefox 121 or later. Updates arrive automatically.
 
 Firefox does not grant site access at install time, so the first time you open
 the popup it asks you to **Grant access** to Jira, Confluence and GitHub. Search
