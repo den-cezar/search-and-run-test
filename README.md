@@ -6,7 +6,7 @@
 [![Tests](https://img.shields.io/badge/tests-263%20unit%20%2B%2035%20e2e-brightgreen)](#tests)
 [![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)](#test-coverage)
 [![Chrome Web Store](https://img.shields.io/chrome-web-store/v/mphnpjnmjdmoabgcabfgpbmieamgihof?logo=googlechrome&logoColor=white&label=Chrome%20Web%20Store)](https://chromewebstore.google.com/detail/search-run-test/mphnpjnmjdmoabgcabfgpbmieamgihof)
-[![Edge Add-ons](https://img.shields.io/badge/Edge%20Add--ons-in%20review-0078d7?logo=microsoftedge&logoColor=white)](#3-install-the-extension)
+[![Edge Add-ons](https://img.shields.io/badge/dynamic/json?label=Edge%20Add-ons&query=%24.version&prefix=v&color=0078d7&logo=microsoftedge&logoColor=white&url=https%3A%2F%2Fmicrosoftedge.microsoft.com%2Faddons%2Fgetproductdetailsbycrxid%2Fanjfnnehilfpnobhkpnjcdddgnomggjg)](https://microsoftedge.microsoft.com/addons/detail/search-run-test/anjfnnehilfpnobhkpnjcdddgnomggjg)
 [![Firefox Add-ons](https://img.shields.io/amo/v/search-run-test?logo=firefoxbrowser&logoColor=white&label=Firefox%20Add-ons&color=ff7139)](https://addons.mozilla.org/firefox/addon/search-run-test/)
 [![Manifest V3](https://img.shields.io/badge/Manifest-V3-5a5a5a)](manifest.json)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -16,6 +16,8 @@ repos, and dispatch the matching GitHub Actions workflow — without leaving the
 browser. Manifest V3, works in Chrome, Edge and Firefox 121+.
 
 **[Install from the Chrome Web Store](https://chromewebstore.google.com/detail/search-run-test/mphnpjnmjdmoabgcabfgpbmieamgihof)**
+&nbsp;·&nbsp;
+**[Install from Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/search-run-test/anjfnnehilfpnobhkpnjcdddgnomggjg)**
 &nbsp;·&nbsp;
 **[Install from Firefox Add-ons](https://addons.mozilla.org/firefox/addon/search-run-test/)**
 
@@ -71,8 +73,9 @@ Updates arrive automatically.
 
 **Microsoft Edge**
 
-Under review at the Microsoft Edge Add-ons store. Until it is published, use the
-unpacked install below — Edge loads Manifest V3 extensions the same way Chrome does.
+Install from
+[Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/search-run-test/anjfnnehilfpnobhkpnjcdddgnomggjg).
+Updates arrive automatically.
 
 **Firefox**
 
