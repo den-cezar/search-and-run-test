@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/den-cezar/search-and-run-test/compare/v0.1.3...v0.2.0) (2026-09-14)
+
+
+### Features
+
+* support Firefox ([#22](https://github.com/den-cezar/search-and-run-test/issues/22)) ([303ccc1](https://github.com/den-cezar/search-and-run-test/commit/303ccc1cdc4238d6949ee8e5a01146d20683854f))
+
 ## [0.1.3](https://github.com/den-cezar/search-and-run-test/compare/v0.1.2...v0.1.3) (2026-09-11)
 
 
