@@ -233,4 +233,5 @@ jobs:
             --channel listed \
             --api-key "$AMO_JWT_ISSUER" \
             --api-secret "$AMO_JWT_SECRET" \
+            --approval-timeout 0 \
             --no-input
