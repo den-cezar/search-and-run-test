@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/den-cezar/search-and-run-test/compare/v0.2.0...v0.2.1) (2026-09-17)
+
+
+### Bug Fixes
+
+* build a separate package for each store ([#24](https://github.com/den-cezar/search-and-run-test/issues/24)) ([f7d6e12](https://github.com/den-cezar/search-and-run-test/commit/f7d6e12292e063bb144fbe26a7ac47b34d033d0a))
+
 ## [0.2.0](https://github.com/den-cezar/search-and-run-test/compare/v0.1.3...v0.2.0) (2026-09-14)
 
 
