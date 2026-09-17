@@ -16,6 +16,8 @@ repos, and dispatch the matching GitHub Actions workflow — without leaving the
 browser. Manifest V3, works in Chrome, Edge and Firefox 121+.
 
 **[Install from the Chrome Web Store](https://chromewebstore.google.com/detail/search-run-test/mphnpjnmjdmoabgcabfgpbmieamgihof)**
+&nbsp;·&nbsp;
+**[Install from Firefox Add-ons](https://addons.mozilla.org/firefox/addon/search-run-test/)**
 
 ## How it works
 
