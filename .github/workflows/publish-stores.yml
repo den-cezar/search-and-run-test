@@ -28,7 +28,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
           TAG: ${{ inputs.tag }}
-        run: gh release download "$TAG" --pattern '*.zip' --dir dist
+        run: gh release download "$TAG" --pattern '*-chromium.zip' --dir dist
 
       - name: Request an access token
         env:
@@ -107,7 +107,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
           TAG: ${{ inputs.tag }}
-        run: gh release download "$TAG" --pattern '*.zip' --dir dist
+        run: gh release download "$TAG" --pattern '*-chromium.zip' --dir dist
 
       - name: Upload package to the draft submission
         env:
@@ -203,12 +203,15 @@ jobs:
     runs-on: ubuntu-latest
     environment: firefox-add-ons
     steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
       - name: Download release package
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
           TAG: ${{ inputs.tag }}
-        run: gh release download "$TAG" --pattern '*.zip' --dir dist
+        run: gh release download "$TAG" --pattern '*-firefox.zip' --dir dist
 
       - name: Set up Node.js
         uses: actions/setup-node@v7
@@ -222,11 +225,11 @@ jobs:
         run: |
           set -euo pipefail
           zip=$(find dist -name '*.zip' | head -n 1)
-          mkdir -p build
-          unzip -q "$zip" -d build
+          mkdir -p submission
+          unzip -q "$zip" -d submission
           # web-ext signs a source directory, not a zip.
           npx --yes web-ext@8 sign \
-            --source-dir build \
+            --source-dir submission \
             --channel listed \
             --api-key "$AMO_JWT_ISSUER" \
             --api-secret "$AMO_JWT_SECRET" \

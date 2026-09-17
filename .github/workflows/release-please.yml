@@ -34,29 +34,31 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v7
 
-      - name: Build extension zip
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+
+      - name: Build the store packages
         env:
           TAG: ${{ needs.release-please.outputs.tag_name }}
         run: |
-          ZIP="search-and-run-test-${TAG}.zip"
-          zip -r "$ZIP" \
-            manifest.json \
-            background.js \
-            content.js \
-            api \
-            config \
-            lib \
-            ui \
-            icons \
-            LICENSE \
-            -x "*.DS_Store"
-          echo "ZIP=$ZIP" >> "$GITHUB_ENV"
+          set -euo pipefail
+          for target in chromium firefox; do
+            node scripts/build-package.mjs "$target"
+            (cd "build/$target" && zip -qr "../../search-and-run-test-${TAG}-${target}.zip" .)
+          done
+          ls -l ./*.zip
 
-      - name: Upload zip to the release
+      - name: Upload the packages to the release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ needs.release-please.outputs.tag_name }}
-        run: gh release upload "$TAG" "$ZIP" --clobber
+        run: |
+          gh release upload "$TAG" \
+            "search-and-run-test-${TAG}-chromium.zip" \
+            "search-and-run-test-${TAG}-firefox.zip" \
+            --clobber
 
   publish:
     name: Publish to stores

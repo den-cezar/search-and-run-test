@@ -85,7 +85,10 @@ and dispatch stay disabled until you do.
 **Unpacked — from a release**
 
 1. Open the [latest release](https://github.com/den-cezar/search-and-run-test/releases/latest)
-   and download `search-and-run-test-vX.Y.Z.zip`.
+   and download `search-and-run-test-vX.Y.Z-chromium.zip` for Chrome or Edge, or
+   `search-and-run-test-vX.Y.Z-firefox.zip` for Firefox. The code is identical;
+   only the manifest differs, because Firefox needs an event page where Chromium
+   needs a service worker.
 2. Unzip it somewhere permanent (the browser loads the extension from this folder).
 3. Continue with the steps below, selecting the unzipped folder.
 
@@ -297,8 +300,9 @@ Releases are automated with
    in `package.json` **and** `manifest.json`, and updates `CHANGELOG.md`.
    - `fix:` → patch, `feat:` → minor, `feat!:`/`BREAKING CHANGE` → major.
 3. Merging that release PR tags the version, publishes a **GitHub Release**, and
-   attaches `search-and-run-test-vX.Y.Z.zip` — the packaged extension end users
-   download and load unpacked.
+   attaches `search-and-run-test-vX.Y.Z-chromium.zip` and
+   `search-and-run-test-vX.Y.Z-firefox.zip` — the packaged extensions end users
+   download and load unpacked, and the ones each store job submits.
 
 ## Contributing
 
